@@ -25,7 +25,7 @@
 
         h1, h2 { font-family: 'Comfortaa', cursive; }
 
-        /* Статичен фон с € и лв */
+        /* Статичен фон с € и лв - без анимация */
         .bg-pattern {
             position: fixed;
             top: 0;
@@ -34,8 +34,8 @@
             height: 100%;
             z-index: -1;
             display: grid;
-            grid-template-columns: repeat(12, 1fr); /* Повече колони за по-плътен вид */
-            grid-template-rows: repeat(8, 1fr);
+            grid-template-columns: repeat(10, 1fr); /* 10 колони */
+            grid-template-rows: repeat(8, 1fr); /* 8 реда */
             gap: 20px;
             opacity: 0.1; /* Едва забележими */
             pointer-events: none;
@@ -44,7 +44,7 @@
         .symbol { 
             font-size: 2.5rem; /* По-големи символи */
             font-weight: bold; 
-            color: #C0D8F0; /* Светло син цвят, за да не се бърка с акцента */
+            color: #C0D8F0; /* Светло син цвят за фон, за да не се бърка с акцента */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -67,7 +67,7 @@
 
         .input-field {
             background: rgba(255, 255, 255, 0.9);
-            border: 2px solid transparent;
+            border: 2px solid #E5E7EB; /* Удебелени граници */
             transition: all 0.3s;
         }
 
@@ -117,7 +117,7 @@
 
     <div class="glass-card">
         <div class="flex flex-col items-center mb-6">
-            <div class="w-20 h-20 bg-[--primary] rounded-2xl flex items-center justify-center text-white text-3xl font-bold shadow-lg mb-2" style="font-family: 'Comfortaa', cursive; font-weight: 900;">
+            <div class="px-8 py-4 bg-[--primary] rounded-2xl flex items-center justify-center text-white text-3xl font-bold shadow-lg mb-2" style="font-family: 'Comfortaa', cursive; font-weight: 900;">
                 € ⇄ лв
             </div>
             <h1 class="text-2xl font-bold text-[--primary]">DualPay</h1>
@@ -173,13 +173,13 @@
         const RATE = 1.95583;
         let resultCurrency = 'BGN';
 
-        // Генериране на статичен фон
+        // Генериране на статичен фон (само € и лв, без анимация)
         const bgPattern = document.getElementById('bgPattern');
-        const symbols = ['€', 'лв', '🪙', '💵']; // Добавих още символи за разнообразие
-        for (let i = 0; i < 100; i++) {
+        const bgSymbols = ['€', 'лв'];
+        for (let i = 0; i < 80; i++) { // 10 колони * 8 реда = 80 символа
             const span = document.createElement('span');
             span.className = 'symbol';
-            span.innerText = symbols[Math.floor(Math.random() * symbols.length)]; // Избира произволен символ
+            span.innerText = bgSymbols[i % 2]; // Редуване € и лв
             bgPattern.appendChild(span);
         }
 
@@ -201,7 +201,6 @@
             const paidBGN = parseFloat(document.getElementById('paidBGN').value) || 0;
             const paidEUR = parseFloat(document.getElementById('paidEUR').value) || 0;
 
-            // Всичко към BGN за сравнение
             const billInBGN = billCurr === 'EUR' ? bill * RATE : bill;
             const totalPaidInBGN = paidBGN + (paidEUR * RATE);
             const changeInBGN = totalPaidInBGN - billInBGN;
@@ -209,7 +208,7 @@
             const errorBox = document.getElementById('errorBox');
             const resultArea = document.getElementById('resultArea');
 
-            if (bill > 0 && totalPaidInBGN < billInBGN && totalPaidInBGN > 0) {
+            if (bill > 0 && totalPaidInBGN < billInBGN) { // Проверяваме за недостатъчна сума
                 errorBox.style.display = 'block';
                 resultArea.classList.add('hidden');
             } else if (bill > 0 && totalPaidInBGN >= billInBGN) {
@@ -226,7 +225,7 @@
             const mainEl = document.getElementById('changeMain');
             const subEl = document.getElementById('changeSub');
 
-            if (changeBGN < 0) { // Ако рестото е отрицателно, покажи 0
+            if (changeBGN < 0) { 
                  mainEl.innerText = "0.00 " + (resultCurrency === 'BGN' ? 'лв' : '€');
                  subEl.innerText = "0.00 " + (resultCurrency === 'BGN' ? '€' : 'лв');
                  return;
@@ -259,7 +258,7 @@
         link.href = manifestURL;
         document.head.appendChild(link);
 
-        // Динамична икона чрез Canvas (ще се използва за PWA инсталация)
+        // Динамична икона чрез Canvas (за PWA инсталация)
         const canvas = document.createElement('canvas');
         canvas.width = 512; canvas.height = 512;
         const ctx = canvas.getContext('2d');
@@ -270,10 +269,9 @@
         ctx.fillStyle = 'white';
         ctx.font = 'bold 100px Comfortaa, sans-serif'; /* По-голям и удебелен шрифт за иконата */
         ctx.textAlign = 'center';
-        ctx.fillText('€⇄лв', 256, 280); /* Променен символ */
+        ctx.fillText('€⇄лв', 256, 280); 
         
         const iconURL = canvas.toDataURL();
-        // Добавяме иконата както за apple-touch-icon, така и за стандартна икона
         const iconLinkApple = document.createElement('link');
         iconLinkApple.rel = 'apple-touch-icon';
         iconLinkApple.href = iconURL;
